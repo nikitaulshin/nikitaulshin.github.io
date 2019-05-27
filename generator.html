@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Генератор артикулов</title>
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <h1>Генератор артикулов</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm">
+                <div class="form-group">
+                    <label class="form-check-label" for="code-length">Длина артикула</label>
+                    <input class="form-control text" id="code-length" placeholder="Введите длину артикула"
+                        maxlength="2">
+                </div>
+                <div class="form-group">
+                    <label class="form-check-label" for="allowed-symbols">Символы в артикуле</label>
+                    <textarea class="form-control" id="allowed-symbols" placeholder="Введите символы артикулов"
+                        maxlength="400"></textarea>
+                </div>
+            </div>
+            <div class="col-sm"></div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-sm">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab"
+                            aria-controls="home" aria-selected="true">Обычный</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab"
+                            aria-controls="profile" aria-selected="false">Шаблон</a>
+                    </li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <br />
+                    <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        <div class="row">
+                            <div class="col-sm">
+                                <form id="generator-form-simple">
+                                    <div class="form-group form-check">
+                                        <input type="checkbox" class="form-check-input" id="randomizeCheckbox">
+                                        <label class="form-check-label" for="randomizeCheckbox">Перемешать
+                                            строки</label>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" id="btn-add-row">Добавить
+                                        строку</button>
+                                    <button type="button" class="btn btn-success"
+                                        id="btn-generate-simple">Сгенерировать!</button>
+                                </form>
+                            </div>
+                            <div class="col-sm" style="max-width: 50%;">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Результат</h5>
+                                        <p class="card-text" id="result-container-simple"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                        <div class="row">
+                            <div class="col-sm">
+                                <form id="generator-form-template">
+                                    <div class="form-group">
+                                        <label class="form-check-label" for="code-length">Количество артикулов в
+                                            шаблоне</label>
+                                        <input class="form-control" placeholder="Введите количество артикулов в шаблоне"
+                                            maxlength="5" id="codes-count">
+                                    </div>
+                                    <button type="button" class="btn btn-success"
+                                        id="btn-generate-template">Сгенерировать!</button>
+                                </form>
+                            </div>
+                            <div class="col-sm" style="max-width: 50%;">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Результат</h5>
+                                        <p class="card-text" id="result-container-template"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+    <script>
+        function generateCode(codeLength, allowedSymbols) {
+            var text = "";
+
+            for (var i = 0; i < codeLength; i++)
+                text += allowedSymbols.charAt(Math.floor(Math.random() * allowedSymbols.length));
+
+            return text;
+        }
+
+        function shuffle(array) {
+            array.sort(() => Math.random() - 0.5);
+        }
+
+        $(document).ready(function () {
+            /* Elements */
+
+            var simpleForm = $('#generator-form-simple');
+            var btnAddRow = $('#btn-add-row');
+            var btnGenerateSimple = $('#btn-generate-simple');
+            var btnGenerateTemplate = $('#btn-generate-template');
+            var randomizeCheckbox = $('#randomizeCheckbox');
+            var resultContainerSimple = $('#result-container-simple');
+            var resultContainerTemplate = $('#result-container-template');
+            var codesCountInput = $('#codes-count');
+            var codeLengthInput = $('#code-length');
+            var allowedSymbolsInput = $('#allowed-symbols');
+
+            /* Functions */
+
+            function deleteRow() {
+                $(this).parent().parent().remove();
+            }
+
+            function pushRow() {
+                simpleForm.find('.form-check').before(`
+                    <div class="input-group mb-3">
+                        <input class="form-control text" placeholder="Введите название" maxlength="120">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-outline-danger" click="deleteRow($event)">X</button>
+                        </div>
+                    </div>
+                `);
+
+                simpleForm.find('.input-group button').last().click(deleteRow);
+            }
+
+            function initFromData(data) {
+                codesCountInput.val(data.codesCount);
+                codeLengthInput.val(data.codeLength);
+                allowedSymbolsInput.val(data.allowedSymbols); // абвгдеёжзиёклмнопрстуфхцчшщэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЭЮЯ
+                randomizeCheckbox.val(data.randomize);
+
+                data.inputs.forEach(function (input) {
+                    pushRow();
+                    simpleForm.find('input.text').last().val(input);
+                })
+            }
+
+            function updateData() {
+                var rows = simpleForm.find('input.text').toArray();
+                var values = rows.map(row => row.value);
+                var newData = {
+                    codesCount: codesCountInput.val(),
+                    codeLength: codeLengthInput.val(),
+                    allowedSymbols: allowedSymbolsInput.val(),
+                    randomize: randomizeCheckbox.val(),
+                    inputs: values
+                }
+
+                localStorage.setItem('data', JSON.stringify(newData));
+            }
+
+            function isSimpleValid() {
+                $('.is-invalid').removeClass('is-invalid');
+
+                if (!codeLengthInput.val()) {
+                    codeLengthInput.addClass('is-invalid');
+                }
+
+                if (!allowedSymbolsInput.val()) {
+                    allowedSymbolsInput.addClass('is-invalid');
+                }
+
+                var rows = simpleForm.find('input.text').toArray();
+                rows.forEach(row => {
+                    if (!row.value) {
+                        $(row).addClass('is-invalid');
+                    }
+                });
+
+                return $('.is-invalid').length === 0;
+            }
+
+            function isTemplateValid() {
+                $('.is-invalid').removeClass('is-invalid');
+
+                if (!codeLengthInput.val()) {
+                    codeLengthInput.addClass('is-invalid');
+                }
+
+                if (!allowedSymbolsInput.val()) {
+                    allowedSymbolsInput.addClass('is-invalid');
+                }
+
+                if (!codesCountInput.val()) {
+                    codesCountInput.addClass('is-invalid');
+                }
+
+                return $('.is-invalid').length === 0;
+            }
+
+            /* Initialize */
+
+            var data = JSON.parse(localStorage.getItem('data'));
+
+            if (!data) {
+                data = {
+                    codesCount: 100,
+                    codeLength: 8,
+                    allowedSymbols: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+                    randomize: false,
+                    inputs: [
+                        'Артикул',
+                        'Цвет',
+                        'Модель'
+                    ]
+                }
+
+                localStorage.setItem('data', JSON.stringify(data));
+            }
+
+            initFromData(data);
+
+            /* Handlers */
+
+            btnAddRow.click(pushRow);
+
+            btnGenerateSimple.click(function () {
+                if (!isSimpleValid()) return;
+
+                var codeLength = codeLengthInput.val();
+                var allowedSymbols = allowedSymbolsInput.val();
+
+                var rows = simpleForm.find('input.text').toArray();
+                var values = rows.map(row => row.value);
+                var result = [];
+                var randomize = randomizeCheckbox.val();
+
+                values.forEach(value => {
+                    result.push(value + ': ' + generateCode(codeLength, allowedSymbols) + '<br>');
+                });
+
+                if (randomize) {
+                    shuffle(result);
+                }
+
+                var resultStr = result.join('');
+                resultContainerSimple.html(resultStr);
+                updateData();
+            });
+
+            btnGenerateTemplate.click(function () {
+                if (!isTemplateValid()) return;
+
+                var codeLength = codeLengthInput.val();
+                var codesCount = codesCountInput.val();
+                var allowedSymbols = allowedSymbolsInput.val();
+
+                var template = "{";
+
+                for (var i = 0; i < codesCount; i++) {
+                    template += generateCode(codeLength, allowedSymbols);
+
+                    if (i != codesCount - 1) {
+                        template += '|';
+                    }
+                }
+
+                template += "}";
+
+                resultContainerTemplate.text(template);
+                updateData();
+            });
+        })
+    </script>
+</body>
+
+</html>
